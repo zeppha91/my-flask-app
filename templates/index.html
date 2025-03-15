@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xác Suất Kết Quả Quay</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Xác Suất Kết Quả Quay Số</h1>
+        
+        <!-- Hiển thị số gợi ý -->
+        <div class="suggested-numbers">
+            <h2>Số Gợi Ý (Xác Suất Cao Nhất)</h2>
+            <p>Hàng Chục: <strong>{{ stats.suggested_tens if stats.suggested_tens is not none else "Chưa có dữ liệu" }}</strong></p>
+            <p>Hàng Đơn Vị: <strong>{{ stats.suggested_units if stats.suggested_units is not none else "Chưa có dữ liệu" }}</strong></p>
+        </div>
+
+        <div class="stats-box">
+            <div class="stats-section">
+                <h2>Hàng Chục (Vị trí 5)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Số</th>
+                            <th>Số Lần Xuất Hiện</th>
+                            <th>Xác Suất (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tens-stats">
+                        {% if stats.tens %}
+                            {% for num, freq, prob in stats.tens %}
+                            <tr>
+                                <td>{{ num }}</td>
+                                <td>{{ freq }}</td>
+                                <td>{{ prob | round(2) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="3">Chưa có dữ liệu</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="stats-section">
+                <h2>Hàng Đơn Vị (Vị trí 6)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Số</th>
+                            <th>Số Lần Xuất Hiện</th>
+                            <th>Xác Suất (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="units-stats">
+                        {% if stats.units %}
+                            {% for num, freq, prob in stats.units %}
+                            <tr>
+                                <td>{{ num }}</td>
+                                <td>{{ freq }}</td>
+                                <td>{{ prob | round(2) }}%</td>
+                            </tr>
+                            {% endfor %}
+                        {% else %}
+                            <tr><td colspan="3">Chưa có dữ liệu</td></tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Tự động làm mới dữ liệu mỗi 30 giây
+        function refreshStats() {
+            fetch('/')
+                .then(response => response.text())
+                .then(html => {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    document.getElementById('tens-stats').innerHTML = doc.getElementById('tens-stats').innerHTML;
+                    document.getElementById('units-stats').innerHTML = doc.getElementById('units-stats').innerHTML;
+                    // Cập nhật số gợi ý
+                    document.querySelector('.suggested-numbers p:nth-child(2)').innerHTML = doc.querySelector('.suggested-numbers p:nth-child(2)').innerHTML;
+                    document.querySelector('.suggested-numbers p:nth-child(3)').innerHTML = doc.querySelector('.suggested-numbers p:nth-child(3)').innerHTML;
+                })
+                .catch(error => console.error('Lỗi làm mới:', error));
+        }
+        setInterval(refreshStats, 5000); // Làm mới mỗi 30 giây
+    </script>
+</body>
+</html>
