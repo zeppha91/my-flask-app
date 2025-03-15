@@ -2,6 +2,7 @@ from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 from collections import Counter
 from flask import Flask, render_template
@@ -28,11 +29,9 @@ def monitor_game():
     chrome_options.add_argument("--no-sandbox")
     chrome_options.add_argument("--disable-dev-shm-usage")
 
-    # Đường dẫn đến file chromedriver (trên server sẽ được cài đặt tự động)
-    chromedriver_path = "/usr/local/bin/chromedriver"  # Đường dẫn trên server (Render)
-
     try:
-        service = Service(chromedriver_path)
+        # Sử dụng webdriver-manager để tự động cài đặt ChromeDriver
+        service = Service(ChromeDriverManager().install())
         driver = webdriver.Chrome(service=service, options=chrome_options)
         print("Đã khởi tạo trình duyệt Chrome thành công.")
     except Exception as e:
